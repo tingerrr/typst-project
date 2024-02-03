@@ -6,7 +6,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use toml::Table;
 
-use crate::error::DeserializeError;
+use super::DeserializeError;
 
 /// The `tool` key in the manifest, this key may contain any configuration
 /// given by 3rd-party tools.

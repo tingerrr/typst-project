@@ -6,6 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bitflags = "2.4.2"
 semver = { version = "1.0.21", features = ["serde"] }
 serde = { version = "1.0.195", features = ["derive"] }
 toml = "0.8.8"
+
+[features]
+default = [
+  "heuristics-all",
+]
+
+heuristics-typstfmt = []
+heuristics-typst-test = []
+heuristics-all = [
+  "heuristics-typstfmt",
+  "heuristics-typst-test",
+]
