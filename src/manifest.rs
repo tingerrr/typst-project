@@ -52,7 +52,7 @@ impl Manifest {
     pub fn try_find<P: AsRef<Path>>(path: P) -> Result<Option<Manifest>, Error> {
         fn inner(path: &Path) -> Result<Option<Manifest>, Error> {
             for ancestor in path.ancestors() {
-                if !heuristics::is_project_root(ancestor, Heuristics::MANIFEST_FILE)? {
+                if heuristics::is_project_root(ancestor, Heuristics::MANIFEST_FILE)? {
                     let content = fs::read_to_string(ancestor.join(heuristics::MANIFEST_FILE))?;
                     let manifest = Manifest::from_str(&content)?;
                     return Ok(Some(manifest));
