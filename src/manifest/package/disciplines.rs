@@ -136,7 +136,6 @@ impl Discipline {
 }
 
 /// An error returned when parsing a [Discipline] failed.
-#[non_exhaustive]
 #[derive(Debug)]
 pub struct ParseDisciplineError {
     value: String,

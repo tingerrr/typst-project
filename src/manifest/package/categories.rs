@@ -165,7 +165,6 @@ impl Category {
 }
 
 /// An error returned when parsing a [Category] failed.
-#[non_exhaustive]
 #[derive(Debug)]
 pub struct ParseCategoryError {
     value: String,
