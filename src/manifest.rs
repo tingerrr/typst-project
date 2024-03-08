@@ -8,11 +8,13 @@ pub use toml::ser::Error as SerializeError;
 use toml::Table;
 
 use self::package::Package;
+use self::template::Template;
 use self::tool::Tool;
 use crate::heuristics;
 use crate::heuristics::Heuristics;
 
 pub mod package;
+pub mod template;
 pub mod tool;
 
 /// A typst.toml manifest.
@@ -21,6 +23,11 @@ pub mod tool;
 pub struct Manifest {
     /// The `package` key, storing a package's metadata.
     pub package: Package,
+
+    /// The `template` key, storing a packages's template metadata.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub template: Option<Template>,
 
     /// The `tool` key, storing 3rd-party configuration.
     #[serde(skip_serializing_if = "Option::is_none")]

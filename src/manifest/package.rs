@@ -5,6 +5,12 @@ use std::path::PathBuf;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 
+use self::categories::Category;
+use self::disciplines::Discipline;
+
+pub mod categories;
+pub mod disciplines;
+
 /// The `package` key in the manifest, storing a package's metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -39,6 +45,16 @@ pub struct Package {
     #[serde(default)]
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub keywords: Vec<String>,
+
+    /// The categories for the package.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub categories: Vec<Category>,
+
+    /// The disciplines for the package.
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub disciplines: Vec<Discipline>,
 
     /// The excluded paths of this package. This paths are ignored by the
     /// package manager's bundler.
