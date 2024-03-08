@@ -4,8 +4,16 @@ use std::{fmt, fs, io};
 /// The name of the typst manifest file.
 pub const MANIFEST_FILE: &str = "typst.toml";
 
-/// All files which can be found in a typst project.
+/// The name of a possible entrypoint for a document.
+pub const MAIN_FILE: &str = "main.typ";
+
+/// The name of a possible entrypoint for a package.
+pub const LIB_FILE: &str = "lib.typ";
+
+/// All files which can be found in a typst project root.
 pub const ROOT_FILES: &[(&str, Heuristic)] = &[
+    ("main.typ", Heuristic::MainFile { src: false }),
+    ("lib.typ", Heuristic::LibFile { src: false }),
     (MANIFEST_FILE, Heuristic::ManifestFile),
     #[cfg(feature = "heuristics-typstfmt")]
     ("typstfmt.toml", Heuristic::TypstfmtConfig),
@@ -15,6 +23,12 @@ pub const ROOT_FILES: &[(&str, Heuristic)] = &[
 /// one heuristic.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Heuristic {
+    /// A main.typ file was found.
+    MainFile { src: bool },
+
+    /// A lib.typ file was found.
+    LibFile { src: bool },
+
     /// A typst.toml manifest file was found.
     ManifestFile,
 
@@ -26,6 +40,10 @@ pub enum Heuristic {
 impl From<Heuristic> for Heuristics {
     fn from(value: Heuristic) -> Self {
         match value {
+            Heuristic::MainFile { src: false } => Heuristics::MAIN_FILE,
+            Heuristic::LibFile { src: false } => Heuristics::LIB_FILE,
+            Heuristic::MainFile { src: true } => Heuristics::MAIN_FILE | Heuristics::SRC_FOLDER,
+            Heuristic::LibFile { src: true } => Heuristics::LIB_FILE | Heuristics::SRC_FOLDER,
             Heuristic::ManifestFile => Heuristics::MANIFEST_FILE,
             #[cfg(feature = "heuristics-typstfmt")]
             Heuristic::TypstfmtConfig => Heuristics::TYPSTFMT_CONFIG,
@@ -37,12 +55,30 @@ bitflags::bitflags! {
     /// A set of heuristics.
     #[derive(Clone, Copy, PartialEq, Eq, Hash)]
     pub struct Heuristics: u32 {
+        /// A heuristic to look for a main.typ source file.
+        const MAIN_FILE = 1 << 0;
+
+        /// A heuristic to look for a lib.typ source file.
+        const LIB_FILE = 1 << 0;
+
+        /// A heuristic to look for a main.typ or lib.typ source file in a src
+        /// folder instead of the root folder.
+        const SRC_FOLDER = 1 << 1;
+
         /// A heuristic to look for typst.toml manifest files.
-        const MANIFEST_FILE = 1 << 0;
+        const MANIFEST_FILE = 1 << 2;
 
         /// A heuristic to look for typstfmt config files.
         #[cfg(feature = "heuristics-typstfmt")]
-        const TYPSTFMT_CONFIG = 1 << 1;
+        const TYPSTFMT_CONFIG = 1 << 3;
+
+        /// The recommended heuristics.
+        #[cfg(not(feature = "heuristics-typstfmt"))]
+        const RECOMMENDED = Self::MANIFEST_FILE.bits();
+
+        /// The recommended heuristics.
+        #[cfg(feature = "heuristics-typstfmt")]
+        const RECOMMENDED = Self::MANIFEST_FILE.bits() | Self::TYPSTFMT_CONFIG.bits();
     }
 }
 
@@ -142,7 +178,7 @@ pub fn project_root<P: AsRef<Path>>(
         let mut res = Heuristics::empty();
 
         for entry in fs::read_dir(path)? {
-            if let Some(h) = dir_entry(entry?, heuristics)? {
+            if let Some(h) = potential_root_dir_entry(entry?, heuristics)? {
                 res |= h.into();
 
                 if first || res == heuristics {
@@ -157,9 +193,36 @@ pub fn project_root<P: AsRef<Path>>(
     inner(path.as_ref(), heuristics, first)
 }
 
-fn dir_entry(entry: fs::DirEntry, heuristics: Heuristics) -> io::Result<Option<Heuristic>> {
+fn potential_root_dir_entry(
+    entry: fs::DirEntry,
+    heuristics: Heuristics,
+) -> io::Result<Option<Heuristic>> {
     let typ = entry.file_type()?;
     let name = entry.file_name();
+
+    if typ.is_dir() {
+        if heuristics.contains(Heuristics::SRC_FOLDER) && name == "src" {
+            for entry in fs::read_dir(entry.path().join("src"))? {
+                let entry = entry?;
+                let typ = entry.file_type()?;
+                let name = entry.file_name();
+
+                if !typ.is_file() {
+                    return Ok(None);
+                }
+
+                if name == "main.typ" {
+                    return Ok(Some(Heuristic::MainFile { src: true }));
+                }
+
+                if name == "lib.typ" {
+                    return Ok(Some(Heuristic::LibFile { src: true }));
+                }
+            }
+        }
+
+        return Ok(None);
+    }
 
     if !typ.is_file() {
         return Ok(None);
