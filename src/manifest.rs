@@ -35,14 +35,14 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    /// Tries to find the manifest for the project containing `path`. If `path` is
-    /// relative, then it may not discover the project root, if it lies above the
-    /// relative root. See [try_find_project_root] for more info on how the manifest
-    /// is discovered.
+    /// Tries to find the manifest for the project containing `path`. If `path`
+    /// is relative, then it may not discover the project root, if it lies above
+    /// the relative root. See [heuristics::try_find_project_root] for more info
+    /// on how the manifest is discovered.
     ///
     /// Returns `None` if no manifest could be found, returns an error if
-    /// [try_find_project_root] fails, or if a manifest was found but could not be
-    /// parsed.
+    /// [heuristics::try_find_project_root] fails, or if a manifest was found
+    /// but could not be parsed.
     ///
     /// # Examples
     /// ```no_run
@@ -56,6 +56,8 @@ impl Manifest {
     /// }
     /// # Ok::<_, Box<dyn std::error::Error>>(())
     /// ```
+    ///
+    /// [heuristics::try_find_project_root]: crate::heuristics::try_find_project_root
     pub fn try_find<P: AsRef<Path>>(path: P) -> Result<Option<Manifest>, Error> {
         fn inner(path: &Path) -> Result<Option<Manifest>, Error> {
             for ancestor in path.ancestors() {

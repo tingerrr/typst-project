@@ -9,10 +9,10 @@ pub mod manifest;
 /// Recursively looks up the ancestors of `path` until it finds a project root
 /// directory which matches any heurisitc. If `path` is relative, then it may
 /// not discover the project root, if it lies above the relative root. See
-/// [heursitics::try_find_project_root] for more info.
+/// [heuristics::try_find_project_root] for more info.
 ///
 /// Returns `None` if no root can be found, returns an error if
-/// [heursitics::try_find_project_root] fails.
+/// [heuristics::try_find_project_root] fails.
 ///
 /// # Examples
 /// ```no_run
@@ -34,7 +34,7 @@ pub fn try_find_project_root(path: &Path) -> io::Result<Option<&Path>> {
 /// [heuristics::is_project_root] if you need to control which heuristics
 /// should be matched.
 ///
-/// Returns an error if [read_dir][fs::read_dir] fails.
+/// Returns an error if [read_dir] fails.
 ///
 /// # Examples
 /// ```no_run
@@ -49,6 +49,8 @@ pub fn try_find_project_root(path: &Path) -> io::Result<Option<&Path>> {
 /// }
 /// # Ok::<_, Box<dyn std::error::Error>>(())
 /// ```
+///
+/// [read_dir]: std::fs::read_dir
 pub fn is_project_root<P: AsRef<Path>>(path: P) -> io::Result<bool> {
     heuristics::is_project_root(path, Heuristics::all())
 }
