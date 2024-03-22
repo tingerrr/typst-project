@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 
 /// A package discipline, indicating the target audience of the package.
 #[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
 pub enum Discipline {
     Agriculture,
     Anthropology,

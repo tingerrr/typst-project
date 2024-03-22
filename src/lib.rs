@@ -6,6 +6,9 @@ use heuristics::Heuristics;
 pub mod heuristics;
 pub mod manifest;
 
+#[macro_use]
+mod utils;
+
 /// Recursively looks up the ancestors of `path` until it finds a project root
 /// directory which matches any of the recommended heurisitcs. If `path` is
 /// relative, then it may not discover the project root, if it lies above the

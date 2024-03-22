@@ -13,9 +13,15 @@ use self::tool::Tool;
 use crate::heuristics;
 use crate::heuristics::Heuristics;
 
+pub mod author;
+pub mod categories;
+pub mod disciplines;
+pub mod ident;
+pub mod license;
 pub mod package;
 pub mod template;
 pub mod tool;
+pub mod website;
 
 /// A typst.toml manifest.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +41,22 @@ pub struct Manifest {
 }
 
 impl Manifest {
+    pub fn package(package: Package) -> Manifest {
+        Manifest {
+            package,
+            template: None,
+            tool: None,
+        }
+    }
+
+    pub fn template(package: Package, template: Template) -> Manifest {
+        Manifest {
+            package,
+            template: Some(template),
+            tool: None,
+        }
+    }
+
     /// Tries to find the manifest for the project containing `path`. If `path`
     /// is relative, then it may not discover the project root, if it lies above
     /// the relative root. See [heuristics::try_find_project_root] for more info

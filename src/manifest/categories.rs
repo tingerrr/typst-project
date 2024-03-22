@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 
 /// A packages category.
 #[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
 pub enum Category {
     /// Building blocks for documents. This includes boxes, layout elements,
     /// marginals, icon packs, color palettes, and more.
