@@ -1,17 +1,18 @@
 //! Typst package categories.
 
-use std::fmt::{Debug, Display};
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
+use strum::{EnumString, IntoStaticStr};
 
 // taken from:
 // https://github.com/typst/packages/blob/aac865d4463dd00d7bafc05f31362db27b054309/CATEGORIES.md
 
 /// A packages category.
 #[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, EnumString, IntoStaticStr,
+)]
 #[serde(deny_unknown_fields, rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
 pub enum Category {
     /// Building blocks for documents. This includes boxes, layout elements,
     /// marginals, icon packs, color palettes, and more.
@@ -140,79 +141,6 @@ impl Category {
 
     /// Converts a [Category] into it's kebab-case text representation.
     pub fn to_str(self) -> &'static str {
-        match self {
-            Self::Components => "components",
-            Self::Visualization => "visualization",
-            Self::Model => "model",
-            Self::Layout => "layout",
-            Self::Text => "text",
-            Self::Languages => "languages",
-            Self::Scripting => "scripting",
-            Self::Integration => "integration",
-            Self::Utility => "utility",
-            Self::Fun => "fun",
-            Self::Book => "book",
-            Self::Report => "report",
-            Self::Paper => "paper",
-            Self::Thesis => "thesis",
-            Self::Poster => "poster",
-            Self::Flyer => "flyer",
-            Self::Presentation => "presentation",
-            Self::Cv => "cv",
-            Self::Office => "office",
-        }
-    }
-}
-
-/// An error returned when parsing a [Category] failed.
-#[derive(Debug)]
-pub struct ParseCategoryError {
-    value: String,
-}
-
-impl Display for ParseCategoryError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "unknown category '{}'", self.value)
-    }
-}
-
-impl std::error::Error for ParseCategoryError {}
-
-impl FromStr for Category {
-    type Err = ParseCategoryError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(match s {
-            "components" => Self::Components,
-            "visualization" => Self::Visualization,
-            "model" => Self::Model,
-            "layout" => Self::Layout,
-            "text" => Self::Text,
-            "languages" => Self::Languages,
-            "scripting" => Self::Scripting,
-            "integration" => Self::Integration,
-            "utility" => Self::Utility,
-            "fun" => Self::Fun,
-            "book" => Self::Book,
-            "report" => Self::Report,
-            "paper" => Self::Paper,
-            "thesis" => Self::Thesis,
-            "poster" => Self::Poster,
-            "flyer" => Self::Flyer,
-            "presentation" => Self::Presentation,
-            "cv" => Self::Cv,
-            "office" => Self::Office,
-            _ => {
-                return Err(ParseCategoryError {
-                    value: s.to_owned(),
-                })
-            }
-        })
-    }
-}
-
-impl Display for Category {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.to_str())
+        self.into()
     }
 }
